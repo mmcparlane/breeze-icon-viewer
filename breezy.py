@@ -23,7 +23,9 @@ import re
 
 class SvgFile:
     def __init__(self, svg):
-        self.name = os.path.basename(svg)
+        self.name = os.path.splitext(
+            os.path.basename(svg))[0]
+        
         self.path = svg
         self.resolved = os.path.normpath(
             self.resolveFilePath(svg))
@@ -49,17 +51,18 @@ class SvgFile:
         return svg
 
     def img(self):
-        return f'<img src="{self.resolved}" width="{self.size}" height="{self.size}">'
+        return f'<img loading="lazy" src="{self.resolved}" width="{self.size}" height="{self.size}">'
 
 def writeHtml(svgs, dst):
     newline = "\n"
     divs = []
     for k, v in svgs.items():
-        divs.append(f"<div class='group'><span>{k}</span>{newline.join([svg.img() for svg in v])}</div>")
+        divs.append(f"<div class='group'><span><p>{k}</p></span>{newline.join([svg.img() for svg in v])}</div>")
     
     print(f"""
 <html>
     <head>
+        <title>KDE Breeze Icons</title>
         <style>
             .group {{
                 display: inline;
@@ -69,14 +72,18 @@ def writeHtml(svgs, dst):
             .group span {{
                 display: none;
                 position: absolute;
-                top: 2em;
+                top: 1em;
                 z-index: 100;
-                background: #333;
+                background: #333c;
                 color: #fff;
             }}
 
             .group:hover span {{
                 display: inline;
+            }}
+
+            .group span p {{
+                margin: 1em;
             }}
         </style>
     </head>
